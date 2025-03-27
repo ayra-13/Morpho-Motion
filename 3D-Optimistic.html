@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimistic 3D Animation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background: linear-gradient(to bottom, #ffcc00, #ff6600); }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+<script>
+    let scene, camera, renderer, light;
+    let particles = [];
+    
+    function init() {
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.z = 10;
+        
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        
+        light = new THREE.PointLight(0xffffff, 1, 50);
+        light.position.set(5, 5, 5);
+        scene.add(light);
+        
+        let particleGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+        let particleMaterial = new THREE.MeshStandardMaterial({ color: 0xfff700, emissive: 0xffa500 });
+        
+        for (let i = 0; i < 100; i++) {
+            let particle = new THREE.Mesh(particleGeometry, particleMaterial);
+            particle.position.set(
+                (Math.random() - 0.5) * 20,
+                (Math.random() - 0.5) * 20,
+                (Math.random() - 0.5) * 20
+            );
+            scene.add(particle);
+            particles.push(particle);
+        }
+        
+        animate();
+    }
+    
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        particles.forEach(particle => {
+            particle.position.y += Math.sin(Date.now() * 0.001) * 0.02;
+            particle.material.emissiveIntensity = Math.abs(Math.sin(Date.now() * 0.002));
+        });
+        
+        renderer.render(scene, camera);
+    }
+    
+    window.addEventListener('resize', () => {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+    });
+    
+    init();
+</script>
+</body>
+</html>
